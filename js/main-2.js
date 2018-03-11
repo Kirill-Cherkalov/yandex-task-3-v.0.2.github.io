@@ -3,18 +3,40 @@ ymaps.ready(MYAPP);
 function MYAPP() {
 
 	class Players {
+
 		constructor(name) {
 			this.name = name;
 			this.cities = [];
+			this.symbol = '';
+		}
+
+		humanRequre(city) {
+			fetch('http://api.geonames.org/searchJSON?name_equals=' + city + '&lang=ru&featureClass=P&cities=cities1000&orderby=relevance&username=kirill_for_yandex')
+				.then(game.getResponse)
+				.then(game.humanInfo)
+				.then(game.lastSymb)
+				.then(game.player.compRequre)
+				.catch(err => outRes.innerHTML = 'Введенный город не найден.');
+		}
+
+		compRequre(symbol) {
+			fetch('http://api.geonames.org/searchJSON?name_startsWith=' + symbol + '&orderby=relevance&searchlang=ru&cities=cities1000&lang=ru&featureClass=P&username=kirill_for_yandex')
+				.then(game.getResponse)
+				.then(game.ifNothing)
+				.then(game.ifRepeat)
+				.then(game.compInfo)
+				.then(game.lastSymb)
+				.catch(err => outRes.innerHTML = err);
 		}
 
 	}
 
 	class Game {
+
 		constructor() {
 			this.currentProfile = 0;
-			// this.lastSymb
-			// this.rand 
+			this.test = new Tests();
+			this.player = new Players();
 		}
 
 		loadGame() {
@@ -31,55 +53,8 @@ function MYAPP() {
 		getCity() {
 			this.city = document.getElementById('humanCity').value;
 			document.getElementById('humanCity').value = outRes.innerHTML = '';
-			game.firstTest(game.city)
-			// game.humanRequre(game.city);
+			game.test.firstTest(game.city)
 			return;
-		}
-
-		firstTest(city) {
-			if (city == '') {
-				outRes.innerHTML = 'Введите город';
-				return;
-			} else game.checkSymbol(city);
-		}
-
-		checkSymbol(city) {
-			city = city.toLowerCase();
-			city = city[0].toUpperCase() + city.slice(1);
-			if ( users[game.currentProfile].cities.length ) {
-				if (city.charAt(0) == lastSymb.toUpperCase()) {
-					game.checkCity(city)
-					return;
-				} else {
-					outRes.innerHTML = 'Ссылка на правила игры в заглавии. 2';
-					return;
-				}
-			} else {
-				game.humanRequre(city);
-				return;
-			}
-		}
-
-		checkCity(city) {
-			for (let i = 0; i < users[game.currentProfile].cities.length; i++) {
-				for (let j = 0; j < computers[game.currentProfile].cities.length; j++) {
-					if (city == users[game.currentProfile].cities[i] || city == computers[game.currentProfile].cities[j]) {
-						outRes.innerHTML = 'Этот город уже был введен';
-						return;
-					}
-				}
-			}
-			game.humanRequre(city);
-			return;
-		}
-
-		humanRequre(city) {
-			fetch('http://api.geonames.org/searchJSON?name_equals=' + city + '&lang=ru&featureClass=P&cities=cities1000&orderby=relevance&username=kirill_for_yandex')
-				.then(game.getResponse)
-				.then(game.humanInfo)
-				.then(game.lastSymb)
-				.then(game.compRequre)
-				.catch(err => outRes.innerHTML = 'Введенный город не найден.');
 		}
 
 		getResponse(response) {
@@ -100,21 +75,11 @@ function MYAPP() {
 		}
 
 		lastSymb(city) {
-			lastSymb = city.charAt(city.length - 1);
-			if (lastSymb == 'ъ' || lastSymb == 'ь') {
-				lastSymb = city.charAt(city.length - 2);
+			users[game.currentProfile].symbol = city.charAt(city.length - 1);
+			if (users[game.currentProfile].symbol == 'ъ' || users[game.currentProfile].symbol == 'ь') {
+				users[game.currentProfile].symbol = city.charAt(city.length - 2);
 			}
-			return lastSymb;
-		}
-
-		compRequre(symbol) {
-			fetch('http://api.geonames.org/searchJSON?name_startsWith=' + symbol + '&orderby=relevance&searchlang=ru&cities=cities1000&lang=ru&featureClass=P&username=kirill_for_yandex')
-				.then(game.getResponse)
-				.then(game.ifNothing)
-				.then(game.ifRepeat)
-				.then(game.compInfo)
-				.then(game.lastSymb)
-				.catch(err => outRes.innerHTML = err);
+			return users[game.currentProfile].symbol;
 		}
 
 		ifNothing(compData) {
@@ -174,7 +139,6 @@ function MYAPP() {
 			game.myMap.geoObjects.each((geoObject) => {
 				game.myMap.geoObjects.remove(geoObject);
 			})
-
 		}
 
 		handleProfile(i) {
@@ -223,13 +187,52 @@ function MYAPP() {
 
 	}
 
+	class Tests {
+
+		firstTest(city) {
+			if (city == '') {
+				outRes.innerHTML = 'Введите город';
+				return;
+			} else game.test.checkSymbol(city);
+		}
+
+		checkSymbol(city) {
+			city = city.toLowerCase();
+			city = city[0].toUpperCase() + city.slice(1);
+			if (users[game.currentProfile].cities.length) {
+				if (city.charAt(0) == users[game.currentProfile].symbol.toUpperCase()) {
+					game.test.checkCity(city)
+					return;
+				} else {
+					outRes.innerHTML = 'Ссылка на правила игры в заглавии. 2';
+					return;
+				}
+			} else {
+				game.player.humanRequre(city);
+				return;
+			}
+		}
+
+		checkCity(city) {
+			for (let i = 0; i < users[game.currentProfile].cities.length; i++) {
+				for (let j = 0; j < computers[game.currentProfile].cities.length; j++) {
+					if (city == users[game.currentProfile].cities[i] || city == computers[game.currentProfile].cities[j]) {
+						outRes.innerHTML = 'Этот город уже был введен';
+						return;
+					}
+				}
+			}
+			game.player.humanRequre(city);
+			return;
+		}
+	}
+
 	let user1 = new Players('user1');
 	let user2 = new Players('user2');
 	let computer1 = new Players('computer1');
 	let computer2 = new Players('computer2');
 	let game = new Game();
 
-	let lastSymb = '';
 	let humanContainer = document.getElementById('humanCities');
 	let compContainer = document.getElementById('compCities');
 	let random;
@@ -237,6 +240,7 @@ function MYAPP() {
 
 	let users = [user1, user2];
 	let computers = [computer1, computer2];
+
 	let profiles = document.getElementsByName('game-profile');
 
 
