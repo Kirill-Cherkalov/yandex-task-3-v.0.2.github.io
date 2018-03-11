@@ -1,258 +1,340 @@
 ymaps.ready(MYAPP);
 
+
 function MYAPP() {
 
-	class Players {
+    class Players {
 
-		constructor(name) {
-			this.name = name;
-			this.cities = [];
-			this.symbol = '';
-		}
+        constructor(name) {
+            this.name = name;
+            this.cities = [];
+            this.symbol = '';
+        }
 
-		humanRequre(city) {
-			fetch('http://api.geonames.org/searchJSON?name_equals=' + city + '&lang=ru&featureClass=P&cities=cities1000&orderby=relevance&username=kirill_for_yandex')
-				.then(game.getResponse)
-				.then(game.humanInfo)
-				.then(game.lastSymb)
-				.then(game.player.compRequre)
-				.catch(err => outRes.innerHTML = 'Введенный город не найден.');
-		}
+        humanRequre(city) {
+            fetch('http://api.geonames.org/searchJSON?name_equals=' + city + '&lang=ru&featureClass=P&cities=cities1000&orderby=relevance&username=kirill_for_yandex')
+                .then(game.getResponse)
+                .then(game.humanInfo)
+                .then(game.lastSymb)
+                .then(game.player.compRequre)
+                .catch(err => outRes.innerHTML = 'Введенный город не найден.');
+        }
 
-		compRequre(symbol) {
-			fetch('http://api.geonames.org/searchJSON?name_startsWith=' + symbol + '&orderby=relevance&searchlang=ru&cities=cities1000&lang=ru&featureClass=P&username=kirill_for_yandex')
-				.then(game.getResponse)
-				.then(game.ifNothing)
-				.then(game.ifRepeat)
-				.then(game.compInfo)
-				.then(game.lastSymb)
-				.catch(err => outRes.innerHTML = err);
-		}
+        compRequre(symbol) {
+            fetch('http://api.geonames.org/searchJSON?name_startsWith=' + symbol + '&orderby=relevance&searchlang=ru&cities=cities1000&lang=ru&featureClass=P&username=kirill_for_yandex')
+                .then(game.getResponse)
+                .then(game.ifNothing)
+                .then(game.ifRepeat)
+                .then(game.compInfo)
+                .then(game.lastSymb)
+                .catch(err => outRes.innerHTML = err);
+        }
 
-	}
+    }
 
-	class Game {
+    class Game {
 
-		constructor() {
-			this.currentProfile = 0;
-			this.test = new Tests();
-			this.player = new Players();
-		}
+        constructor() {
+            this.currentProfile = 0;
+            this.test = new Tests();
+            this.player = new Players();
+            this.profiles;
+        }
 
-		loadGame() {
-			game.init();
-			return;
-		}
+        loadGame() {
 
-		startApp() {
-			game.getCity();
-			console.log(game.city, game);
-			return;
-		}
+            return;
+        }
 
-		getCity() {
-			this.city = document.getElementById('humanCity').value;
-			document.getElementById('humanCity').value = outRes.innerHTML = '';
-			game.test.firstTest(game.city)
-			return;
-		}
+        startApp() {
+        	// let profiles = document.getElementsByName('game-profile');
+            game.getCity();
+            console.log(game.city, game);
+            return;
+        }
 
-		getResponse(response) {
-			return response.json();
-		}
+        getCity() {
+            this.city = doc.getElementById('humanCity').value;
+            doc.getElementById('humanCity').value = outRes.innerHTML = '';
 
-		humanInfo(ourData) {
-			for (let i = 0; i < profiles.length; i++) {
-				if (profiles[i]['checked'] == true) {
-					users[i].cities.push(ourData.geonames[0].name);
-					game.currentProfile = i;
-				}
-			}
-			game.setLabel(ourData.geonames[0].lat, ourData.geonames[0].lng);
-			console.log(users, game.currentProfile);
-			humanContainer.innerHTML += ' ' + ourData.geonames[0].name + ', ';
-			return ourData.geonames[0].name;
-		}
+            game.test.firstTest(game.city)
+            return;
+        }
 
-		lastSymb(city) {
-			users[game.currentProfile].symbol = city.charAt(city.length - 1);
-			if (users[game.currentProfile].symbol == 'ъ' || users[game.currentProfile].symbol == 'ь') {
-				users[game.currentProfile].symbol = city.charAt(city.length - 2);
-			}
-			return users[game.currentProfile].symbol;
-		}
+        getResponse(response) {
+            return response.json();
+        }
 
-		ifNothing(compData) {
-			return new Promise((resolve, reject) => {
-				if (compData['totalResultsCount'] == 0) {
-					return reject('Нажмите "The end", чтобы подвести итоги.');
-				}
-				return resolve(compData);
-			})
-		}
+        humanInfo(ourData) {
+            for (let i = 0; i < profiles.length; i++) {
+                if (profiles[i]['checked'] == true) {
+                    users[i].cities.push(ourData.geonames[0].name);
+                    game.currentProfile = i;
+                }
+            }
+            game.setLabel(ourData.geonames[0].lat, ourData.geonames[0].lng);
+            console.log(users, game.currentProfile);
+            humanContainer.innerHTML += ' ' + ourData.geonames[0].name + ', ';
+            return ourData.geonames[0].name;
+        }
 
-		ifRepeat(compData) {
-			return new Promise((resolve, reject) => {
-				random = Math.floor(Math.random() * compData.geonames.length);
-				if (computers[game.currentProfile].cities) {
-					computers[game.currentProfile].cities.forEach(function(element) {
-						if (compData.geonames[random].name == element) {
-							return reject('Нажмите "The end", чтобы подвести итоги.');
-						}
-					});
-				}
-				return resolve(compData);
-			})
-		}
+        lastSymb(city) {
+            users[game.currentProfile].symbol = city.charAt(city.length - 1);
+            if (users[game.currentProfile].symbol == 'ъ' || users[game.currentProfile].symbol == 'ь') {
+                users[game.currentProfile].symbol = city.charAt(city.length - 2);
+            }
+            return users[game.currentProfile].symbol;
+        }
 
-		compInfo(compData) {
-			computers[game.currentProfile].cities.push(compData.geonames[random].name);
-			game.setLabel(compData.geonames[random].lat, compData.geonames[random].lng);
-			compContainer.innerHTML += ' ' + compData.geonames[random].name + ', ';
-			console.log(users, computers);
-			return compData.geonames[random].name;
-		}
+        ifNothing(compData) {
+            return new Promise((resolve, reject) => {
+                if (compData['totalResultsCount'] == 0) {
+                    return reject('Нажмите "The end", чтобы подвести итоги.');
+                }
+                return resolve(compData);
+            })
+        }
 
-		restart() {
-			let humanTotals = '',
-				compTotals = '',
-				str = '';
+        ifRepeat(compData) {
+            return new Promise((resolve, reject) => {
+                random = Math.floor(Math.random() * compData.geonames.length);
+                if (computers[game.currentProfile].cities) {
+                    computers[game.currentProfile].cities.forEach(function(element) {
+                        if (compData.geonames[random].name == element) {
+                            return reject('Нажмите "The end", чтобы подвести итоги.');
+                        }
+                    });
+                }
+                return resolve(compData);
+            })
+        }
 
-			users[game.currentProfile].cities.forEach(function(element, index) {
-				humanTotals += `${index + 1} - ${element} ,`;
-			});
+        compInfo(compData) {
+            computers[game.currentProfile].cities.push(compData.geonames[random].name);
+            game.setLabel(compData.geonames[random].lat, compData.geonames[random].lng);
+            compContainer.innerHTML += ' ' + compData.geonames[random].name + ', ';
+            console.log(users, computers);
+            return compData.geonames[random].name;
+        }
 
-			computers[game.currentProfile].cities.forEach(function(element, index) {
-				compTotals += `${index + 1} - ${element} ,`;
-			});
+        restart() {
+            let humanTotals = '',
+                compTotals = '',
+                str = '';
 
-			if (users[game.currentProfile].cities.length > computers[game.currentProfile].cities.length) {
-				str = 'Поздравляю, вы победили.';
-			} else {
-				str = 'Победил компьютер.';
-			}
+            users[game.currentProfile].cities.forEach(function(element, index) {
+                humanTotals += `${index + 1} - ${element} ,`;
+            });
 
-			outRes.innerHTML = 'User: ' + humanTotals + '\n\n' + 'Computer: ' + compTotals + '\n\n' + str;
-			users[game.currentProfile].cities = [];
-			computers[game.currentProfile].cities = [];
-			humanContainer.innerHTML = compContainer.innerHTML = '';
-			game.myMap.geoObjects.each((geoObject) => {
-				game.myMap.geoObjects.remove(geoObject);
-			})
-		}
+            computers[game.currentProfile].cities.forEach(function(element, index) {
+                compTotals += `${index + 1} - ${element} ,`;
+            });
 
-		handleProfile(i) {
-			game.currentProfile = i;
-			let string = '';
+            if (users[game.currentProfile].cities.length > computers[game.currentProfile].cities.length) {
+                str = 'Поздравляю, вы победили.';
+            } else {
+                str = 'Победил компьютер.';
+            }
 
-			users[game.currentProfile].cities.forEach(function(element) {
-				string += element + ' ,';
-			});
+            outRes.innerHTML = 'User: ' + humanTotals + '\n\n' + 'Computer: ' + compTotals + '\n\n' + str;
+            users[game.currentProfile].cities = [];
+            computers[game.currentProfile].cities = [];
+            humanContainer.innerHTML = compContainer.innerHTML = '';
+            game.myMap.geoObjects.each((geoObject) => {
+                game.myMap.geoObjects.remove(geoObject);
+            })
+        }
 
-			humanContainer.innerHTML = string;
-			string = '';
+        handleProfile(i) {
+            game.currentProfile = i;
+            let string = '';
 
-			computers[game.currentProfile].cities.forEach(function(element) {
-				string += element + ' ,';
-			});
+            users[game.currentProfile].cities.forEach(function(element) {
+                string += element + ' ,';
+            });
 
-			compContainer.innerHTML = string;
-			outRes.innerHTML = '';
-			return;
-		}
+            humanContainer.innerHTML = string;
+            string = '';
 
-		init() {
-			game.myMap = new ymaps.Map('map', {
-				center: [0, 0],
-				zoom: 2
-			});
-			game.myMap.controls
-				.add('zoomControl', {
-					left: 5,
-					top: 5
-				})
-		}
+            computers[game.currentProfile].cities.forEach(function(element) {
+                string += element + ' ,';
+            });
 
-		setLabel(lat, lng) {
-			let res = ymaps.geocode([lat, lng], {
-				kind: 'locality'
-			});
-			res.then(
-				(res) => game.myMap.geoObjects.add(res.geoObjects.get(0)),
-				function(err) {
-					console.log(err);
-				}
-			);
-		}
+            compContainer.innerHTML = string;
+            outRes.innerHTML = '';
+            return;
+        }
 
-	}
+        init() {
+            game.myMap = new ymaps.Map('map', {
+                center: [0, 0],
+                zoom: 2
+            });
+            game.myMap.controls
+                .add('zoomControl', {
+                    left: 5,
+                    top: 5
+                })
+        }
 
-	class Tests {
+        setLabel(lat, lng) {
+            let res = ymaps.geocode([lat, lng], {
+                kind: 'locality'
+            });
+            res.then(
+                (res) => game.myMap.geoObjects.add(res.geoObjects.get(0)),
+                function(err) {
+                    console.log(err);
+                }
+            );
+        }
 
-		firstTest(city) {
-			if (city == '') {
-				outRes.innerHTML = 'Введите город';
-				return;
-			} else game.test.checkSymbol(city);
-		}
+        createUsers() {
 
-		checkSymbol(city) {
-			city = city.toLowerCase();
-			city = city[0].toUpperCase() + city.slice(1);
-			if (users[game.currentProfile].cities.length) {
-				if (city.charAt(0) == users[game.currentProfile].symbol.toUpperCase()) {
-					game.test.checkCity(city)
-					return;
-				} else {
-					outRes.innerHTML = 'Ссылка на правила игры в заглавии. 2';
-					return;
-				}
-			} else {
-				game.player.humanRequre(city);
-				return;
-			}
-		}
+            doc.getElementsByClassName('article')[0].style['visibility'] = 'hidden';
+            doc.getElementById('btn')['disabled'] = false;
+            doc.getElementById('start_button')['disabled'] = false;
+            doc.getElementById('humanCity')['disabled'] = false;
+            doc.getElementById('restart')['disabled'] = false;
 
-		checkCity(city) {
-			for (let i = 0; i < users[game.currentProfile].cities.length; i++) {
-				for (let j = 0; j < computers[game.currentProfile].cities.length; j++) {
-					if (city == users[game.currentProfile].cities[i] || city == computers[game.currentProfile].cities[j]) {
-						outRes.innerHTML = 'Этот город уже был введен';
-						return;
-					}
-				}
-			}
-			game.player.humanRequre(city);
-			return;
-		}
-	}
+            for (let i = 0; i < numberOfUsers; i++) {
+                let name = +`user${i+1}`;
+                users.push(`user${i+1}`);
+                computers.push(`computer${i+1}`)
+            }
 
-	let user1 = new Players('user1');
-	let user2 = new Players('user2');
-	let computer1 = new Players('computer1');
-	let computer2 = new Players('computer2');
-	let game = new Game();
+            for (let i = 0; i < numberOfUsers; i++) {
+                names[i] = numbNames[i]['value'];
+            }
 
-	let humanContainer = document.getElementById('humanCities');
-	let compContainer = document.getElementById('compCities');
-	let random;
-	let outRes = document.getElementById('outRes');
+            for (let i = 0; i < users.length; i++) {
+                users[i] = new Players(names[i]);
+                computers[i] = new Players();
+            }
+            console.log(names);
+            console.log(users, computers);
+            game.init();
+            game.showInfo();
+        }
 
-	let users = [user1, user2];
-	let computers = [computer1, computer2];
+        showInfo() {
 
-	let profiles = document.getElementsByName('game-profile');
+            let wrapped = doc.getElementById('profiles'),
+                profileArray = [];
+
+            console.log('число пользователей ' + numberOfUsers, ' имя первого ' + names[0]);
+
+            let info = doc.createDocumentFragment();
+
+            for (let i = 0; i < numberOfUsers * 2; i += 2) {
+                for (let j = 1; j < numberOfUsers * 2; j += 2) {
+
+                    profileArray[i] = doc.createElement('input');
+                    profileArray[i].setAttribute('id', 'game-profile');
+                    profileArray[i].setAttribute('type', 'radio');
+                    profileArray[i].setAttribute('name', 'radio');
+
+                    profileArray[j] = doc.createElement('label');
+
+                    profileArray[j].textContent = names[(j - 1) / 2];
+                }
+            }
 
 
+            profileArray.forEach(function(element, index) {
+                wrapped.appendChild(element);
+            });
+            let profiles = document.getElementsByName('game-profile');
+        }
 
-	for (let i = 0; i < profiles.length; i++) {
-		profiles[i].onclick = function(event) {
-			game.handleProfile(i);
-		}
-	}
+        calculateUsers(i) {
 
-	window.addEventListener('load', game.loadGame);
-	document.getElementById('btn').addEventListener('click', game.startApp);
-	document.getElementById('restart').addEventListener('click', game.restart)
+            numberOfUsers = numbProfiles[i]['value'];
+            for (let j = i + 1; j < numbNames.length; j++) {
+
+                numbNames[j].setAttribute('disabled', '');
+            }
+            for (let j = i; j > 0; j--) {
+                numbNames[j]['disabled'] = false;
+            }
+        }
+
+    }
+
+    class Tests {
+
+        firstTest(city) {
+            if (city == '') {
+                outRes.innerHTML = 'Введите город';
+                return;
+            } else game.test.checkSymbol(city);
+        }
+
+        checkSymbol(city) {
+            city = city.toLowerCase();
+            city = city[0].toUpperCase() + city.slice(1);
+            if (users[game.currentProfile].cities.length) {
+                if (city.charAt(0) == users[game.currentProfile].symbol.toUpperCase()) {
+                    game.test.checkCity(city)
+                    return;
+                } else {
+                    outRes.innerHTML = 'Ссылка на правила игры в заглавии. 2';
+                    return;
+                }
+            } else {
+                game.player.humanRequre(city);
+                return;
+            }
+        }
+
+        checkCity(city) {
+            for (let i = 0; i < users[game.currentProfile].cities.length; i++) {
+                for (let j = 0; j < computers[game.currentProfile].cities.length; j++) {
+                    if (city == users[game.currentProfile].cities[i] || city == computers[game.currentProfile].cities[j]) {
+                        outRes.innerHTML = 'Этот город уже был введен';
+                        return;
+                    }
+                }
+            }
+            game.player.humanRequre(city);
+            return;
+        }
+    }
+
+    let doc = document;
+
+    let game = new Game();
+
+    let humanContainer = doc.getElementById('humanCities');
+    let compContainer = doc.getElementById('compCities');
+    let random;
+    let outRes = doc.getElementById('outRes');
+    
+
+    let numbProfiles = doc.getElementsByName('radio');
+    let numbNames = doc.getElementsByClassName('input-profile');
+    let numberOfUsers;
+
+    let computers = [];
+    let users = [];
+    let names = [];
+
+    for (let i = 0; i < profiles.length; i++) {
+        profiles[i].onclick = function(event) {
+            game.handleProfile(i);
+        }
+    }
+
+    for (let i = 0; i < numbProfiles.length; i++) {
+        numbProfiles[i].onclick = function(event) {
+            game.calculateUsers(i);
+        }
+    }
+
+    window.addEventListener('load', game.loadGame);
+    doc.getElementById('btn-profiles').addEventListener('click', game.createUsers);
+    doc.getElementById('btn').addEventListener('click', game.startApp);
+    doc.getElementById('restart').addEventListener('click', game.restart)
+
 
 }

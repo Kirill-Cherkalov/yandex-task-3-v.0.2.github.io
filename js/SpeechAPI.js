@@ -10,10 +10,10 @@ if (!('webkitSpeechRecognition' in window)) {
 	var recognition = new webkitSpeechRecognition();
 	recognition.continuous = false;
 	recognition.interimResults = true;
-	recognition.onstart = function () {
+	recognition.onstart = function() {
 		recognizing = true;
 	};
-	recognition.onerror = function (event) {
+	recognition.onerror = function(event) {
 		if (event.error == 'no-speech') {
 			showInfo('info_no_speech');
 			ignore_onend = true;
@@ -31,7 +31,7 @@ if (!('webkitSpeechRecognition' in window)) {
 			ignore_onend = true;
 		}
 	};
-	recognition.onend = function () {
+	recognition.onend = function() {
 		recognizing = false;
 		if (ignore_onend) {
 			return;
@@ -42,7 +42,7 @@ if (!('webkitSpeechRecognition' in window)) {
 		}
 		showInfo('');
 	};
-	recognition.onresult = function () {
+	recognition.onresult = function() {
 		var interim_transcript = '';
 		for (var i = event.resultIndex; i < event.results.length; ++i) {
 			if (event.results[i].isFinal) {
@@ -56,6 +56,7 @@ if (!('webkitSpeechRecognition' in window)) {
 		document.getElementById('humanCity').value += linebreak(interim_transcript);
 	};
 }
+
 function upgrade() {
 	start_button.style.visibility = 'hidden';
 	showInfo('info_upgrade');
@@ -69,13 +70,13 @@ function linebreak(s) {
 var first_char = /\S/;
 
 function capitalize(s) {
-	return s.replace(first_char, function (m) {
+	return s.replace(first_char, function(m) {
 		return m.toUpperCase();
 	});
 }
- 	startButton.onclick = function (event) {
- 		console.log(event);
- 				if (recognizing) {
+startButton.onclick = function(event) {
+	console.log(event);
+	if (recognizing) {
 		recognition.stop();
 
 		return;
@@ -88,7 +89,8 @@ function capitalize(s) {
 	document.getElementById('humanCity').value += '';
 	showInfo('info_allow');
 	start_timestamp = event.timeStamp;
- 	};
+};
+
 function showInfo(s) {
 	if (s) {
 		for (var child = info.firstChild; child; child = child.nextSibling) {
