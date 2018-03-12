@@ -1,5 +1,4 @@
-// ymaps.ready(MYAPP);
-MYAPP();
+ymaps.regady(MYAPP);
 
 function MYAPP() {
 
@@ -33,9 +32,9 @@ function MYAPP() {
 	}
 
 	class Game {
-
+//numberOfUsers
 		constructor() {
-			this.currentProfile = 0;
+			this.currentProfile;
 			this.test = new Tests();
 			this.player = new Players();
 			this.profiles;
@@ -133,7 +132,7 @@ function MYAPP() {
 				str = 'Победил компьютер.';
 			}
 
-			outRes.innerHTML = 'User: ' + humanTotals + '\n\n' + 'Computer: ' + compTotals + '\n\n' + str;
+			outRes.innerHTML = `${names[game.currentProfile]} ${humanTotals} \n\n  Computer ${compTotals} \n\n ${str}`;
 			users[game.currentProfile].cities = [];
 			computers[game.currentProfile].cities = [];
 			humanContainer.innerHTML = compContainer.innerHTML = '';
@@ -220,7 +219,7 @@ function MYAPP() {
 			//в DOM запихивает input(ууправление) и label(имена игроков), вызывает handleProfile()
 			let wrapped = doc.getElementById('profiles'),
 				profileArray = [];
-
+					// game.currentProfile =  numberOfUsers;
 			let info = doc.createDocumentFragment();
 
 			for (let i = 0; i < numberOfUsers * 2; i += 2) {
@@ -229,6 +228,7 @@ function MYAPP() {
 					profileArray[i] = doc.createElement('input');
 					profileArray[i].setAttribute('id', 'game-profile');
 					profileArray[i].setAttribute('type', 'radio');
+					// profileArray[i].setAttribute('checked', '');
 					profileArray[i].setAttribute('name', 'game-profile');
 
 					profileArray[j] = doc.createElement('label');
@@ -249,6 +249,7 @@ function MYAPP() {
 
 		handleProfile() {
 			//срабатывает 1 раз после инициализации profiless, потом срабатывает при смене игрока
+			
 			for (let i = 0; i < profiless.length; i++) {
 				profiless[i].onclick = function(event) {
 					game.switchProfile(i);
@@ -259,6 +260,7 @@ function MYAPP() {
 		calculateUsers(i) {
 			//считает кол-о игроков
 			numberOfUsers = numbProfiles[i]['value'];
+			
 			for (let j = i + 1; j < numbNames.length; j++) {
 				numbNames[j].setAttribute('disabled', '');
 			}
@@ -272,11 +274,18 @@ function MYAPP() {
 	class Tests {
 
 		firstTest(city) {
-			//проверка на ввод пустой строки
+			//проверка на ввод пустой строки и выбор профиля
 			if (city == '') {
 				outRes.innerHTML = 'Введите город';
 				return;
-			} else game.test.checkSymbol(city);
+			} else if ( game.currentProfile == undefined ) {
+				outRes.innerHTML = `Выберите профиль игрока `;
+				return;
+			} else {
+				game.test.checkSymbol(city);
+			}
+
+			
 		}
 
 		checkSymbol(city) {
