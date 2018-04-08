@@ -1,4 +1,4 @@
-ymaps.regady(MYAPP);
+ymaps.ready(MYAPP);
 
 function MYAPP() {
 
